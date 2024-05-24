@@ -1,0 +1,35 @@
+.quilt-wrapper {
+    overflow-x: auto;
+}
+
+.quilt {
+    display: grid;
+    border: 3px solid black;
+    /* TODO: only if it would overflow - or hide scroll bar? */    
+  }
+  
+  .quilt-row {
+    display: flex;
+  }
+  
+  /* TODO: make this dynamic based on patch size */
+  .quilt-row:nth-child(6n) {
+    border-bottom: 3px solid black;
+  }
+  
+  .patch {
+    flex: 1;
+    height: 25px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .patch.empty {
+    visibility: hidden;
+  }
+  
+  .patch:nth-child(6n) {
+    border-right: 3px solid black;
+  }

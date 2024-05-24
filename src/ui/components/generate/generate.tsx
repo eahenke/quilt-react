@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Grid } from '../ui';
+
 import { QuiltDisplay } from '../quilt/quilt';
 import { Controls } from '../controls/controls';
 import { Inputs, Quilt } from '../../../engine';
@@ -16,29 +18,24 @@ export function Generate() {
     const [inputs, setInputs] = useState(DEFAULT_INPUTS);
     const { generateQuilt, loading, error } = useGenerateQuilt();
 
-    const save = () => {
-        // TODO: implement localStorage
-        console.log('Saving...');
-    };
-
     const handleGenerate = async () => {
         const q = await generateQuilt(inputs);
         setQuilt(q);
     };
 
     return (
-        <div>
-            <Controls
-                generate={() => {
-                    handleGenerate();
-                }}
-                onChange={vals => setInputs(vals)}
-                save={save}
-                values={inputs}
-            />
-            {loading ? <p>Generating. This may take a few moments...</p> : null}
-            {!loading && error ? <p>{error}</p> : null}
-            {quilt ? <QuiltDisplay pattern={'harken'} quilt={quilt} /> : null}
-        </div>
+        <Grid gutter={'sm'}>
+            <Grid.Col span={2} />
+            <Grid.Col span={8}>
+                {loading ? <p>Generating. This may take a few moments...</p> : null}
+                {!loading && error ? <p>{error}</p> : null}
+                {!loading && !error ? (
+                    <QuiltDisplay cols={inputs.cols} pattern={inputs.patternName} quilt={quilt} rows={inputs.rows} />
+                ) : null}
+            </Grid.Col>
+            <Grid.Col span={2}>
+                <Controls generate={handleGenerate} onChange={setInputs} values={inputs} />
+            </Grid.Col>
+        </Grid>
     );
 }

@@ -1,4 +1,4 @@
-import { EMPTY } from '../constants';
+import { EMPTY, EXPANDED_SPACE } from '../constants';
 import { Coord, Quilt } from '../types';
 import { generateEmptyQuilt, mod, range } from '../util';
 
@@ -17,6 +17,8 @@ export class HarkenPattern {
 
     static patchCols = 6;
     static patchRows = 2;
+    static expandedRows = 6;
+    static expandedCols = 6;
 
     // TODO: fix magic numbers
     // Add in the white space, represent as either 0 or -1 or null
@@ -40,15 +42,21 @@ export class HarkenPattern {
             ]
         ];
 
-        const expandedQuilt = generateEmptyQuilt(quilt.length * 3, quilt[0].length);
+        const rowModifier = this.expandedRows / this.patchRows;
+        const colModifier = this.expandedCols / this.patchCols;
+        const expandedQuilt = generateEmptyQuilt(
+            quilt.length * rowModifier,
+            quilt[0].length * colModifier,
+            EXPANDED_SPACE
+        );
 
         for (let row = 0; row < quilt.length; row++) {
             for (let col = 0; col < quilt[0].length; col++) {
                 const relativeRow = mod(row, 2);
                 const relativeCol = mod(col, 6);
 
-                const patchRowModifier = Math.floor(row / 2) * 6;
-                const patchColModifier = Math.floor(col / 6) * 6;
+                const patchRowModifier = Math.floor(row / 2) * this.expandedCols;
+                const patchColModifier = Math.floor(col / 6) * this.expandedCols;
 
                 const relativePosition = mappings[relativeRow][relativeCol];
                 const mappedRow = relativePosition[0] + patchRowModifier;

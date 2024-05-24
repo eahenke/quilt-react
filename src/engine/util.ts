@@ -23,12 +23,12 @@ export const shuffle = (items: number[]) => {
     return newItems;
 };
 
-export function generateEmptyQuilt(rows: number, cols: number) {
+export function generateEmptyQuilt(rows: number, cols: number, fill = EMPTY) {
     const quilt: Quilt = [];
     for (let i = 0; i < rows; i++) {
         quilt[i] = [];
         for (let j = 0; j < cols; j++) {
-            quilt[i][j] = EMPTY;
+            quilt[i][j] = fill;
         }
     }
 

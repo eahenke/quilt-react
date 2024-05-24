@@ -1,4 +1,5 @@
 import { Inputs, PATTERNS } from '../../../engine';
+import { Select, TextInput, Flex, Button } from '../ui';
 
 const patternOptions = Object.keys(PATTERNS);
 
@@ -6,16 +7,13 @@ export type ControlsProps = {
     onChange: (vals: Inputs) => void;
     values: Inputs;
     generate: () => void;
-    save: () => void;
 };
 
-export const Controls = ({ values, onChange, generate, save }: ControlsProps) => {
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.currentTarget.value;
-        const key = e.currentTarget.name;
+export const Controls = ({ generate, onChange, values }: ControlsProps) => {
+    const handleChange = (val: string | null) => {
         const newVals = {
             ...values,
-            [key]: val
+            patterName: val
         };
         onChange(newVals);
     };
@@ -31,36 +29,50 @@ export const Controls = ({ values, onChange, generate, save }: ControlsProps) =>
     };
 
     return (
-        <div className="controls-row">
+        // <div className="controls-row">
+        <Flex direction="column" gap="md" justify="flex-start" mih={50} wrap="wrap">
             <div className="control">
-                <label htmlFor="patterName">Pattern</label>
-                {/* eslint-disable-next-line jsx-a11y/no-onchange */}
-                <select id="patternName" name="patternName" onChange={handleChange}>
-                    {patternOptions.map(pattern => (
-                        <option key={pattern} value={pattern}>
-                            {pattern}
-                        </option>
-                    ))}
-                </select>
+                <Select
+                    data={patternOptions}
+                    label="Pattern"
+                    name="patterName"
+                    onChange={handleChange}
+                    value={values.patternName}
+                />
             </div>
             <div className="control">
-                <label htmlFor="fabrics">Fabrics</label>
-                <input id="fabrics" name="fabrics" onChange={handleNumChange} type="number" value={values.fabrics} />
+                <TextInput
+                    label="Fabrics"
+                    min={1}
+                    name="fabrics"
+                    onChange={handleNumChange}
+                    type="number"
+                    value={values.fabrics}
+                />
             </div>
             <div className="control">
-                <label htmlFor="rows">Rows</label>
-                <input id="rows" name="rows" onChange={handleNumChange} type="number" value={values.rows} />
+                <TextInput
+                    label="Rows"
+                    min={1}
+                    name="rows"
+                    onChange={handleNumChange}
+                    type="number"
+                    value={values.rows}
+                />
             </div>
             <div className="control">
-                <label htmlFor="cols">Columns</label>
-                <input id="cols" name="cols" onChange={handleNumChange} type="number" value={values.cols} />
+                <TextInput
+                    label="Columns"
+                    min={1}
+                    name="cols"
+                    onChange={handleNumChange}
+                    type="number"
+                    value={values.cols}
+                />
             </div>
-            <button onClick={generate} type="button">
+            <Button onClick={generate} variant="filled">
                 Generate
-            </button>
-            <button onClick={save} type="button">
-                Save
-            </button>
-        </div>
+            </Button>
+        </Flex>
     );
 };
