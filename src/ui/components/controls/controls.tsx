@@ -7,9 +7,10 @@ export type ControlsProps = {
     onChange: (vals: Inputs) => void;
     values: Inputs;
     generate: () => void;
+    exportCsv: () => void;
 };
 
-export const Controls = ({ generate, onChange, values }: ControlsProps) => {
+export const Controls = ({ generate, onChange, values, exportCsv }: ControlsProps) => {
     const handleChange = (val: string | null) => {
         const newVals = {
             ...values,
@@ -29,7 +30,6 @@ export const Controls = ({ generate, onChange, values }: ControlsProps) => {
     };
 
     return (
-        // <div className="controls-row">
         <Flex direction="column" gap="md" justify="flex-start" mih={50} wrap="wrap">
             <div className="control">
                 <Select
@@ -72,6 +72,9 @@ export const Controls = ({ generate, onChange, values }: ControlsProps) => {
             </div>
             <Button onClick={generate} variant="filled">
                 Generate
+            </Button>
+            <Button onClick={exportCsv} variant="outline">
+                Export
             </Button>
         </Flex>
     );
