@@ -6,6 +6,7 @@ import { Controls } from '../controls/controls';
 import { Inputs, Quilt } from '../../../engine';
 import { useGenerateQuilt } from '../../hooks/use-generate-quilt';
 import { useExportCsv } from '../../hooks/use-export';
+import { ColorControls } from '../color-controls';
 
 const DEFAULT_INPUTS: Inputs = {
     patternName: 'harken',
@@ -42,7 +43,9 @@ export function Generate() {
                     <QuiltDisplay cols={inputs.cols} pattern={inputs.patternName} quilt={quilt} rows={inputs.rows} />
                 ) : null}
             </Grid.Col>
-            <Grid.Col span={2} />
+            <Grid.Col span={2}>
+                <ColorControls />
+            </Grid.Col>
         </Grid>
     );
 }

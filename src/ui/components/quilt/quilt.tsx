@@ -1,16 +1,11 @@
 import { useMemo } from 'react';
 import cx from 'classnames';
-import { EMPTY, EXPANDED_SPACE, PATTERNS, Pattern, Quilt } from '../../../engine';
+import { EMPTY, BACKGROUND, PATTERNS, Pattern, Quilt } from '../../../engine';
 import { generateEmptyQuilt } from '../../../engine/util';
 import './quilt.css';
+import { VIEW_TYPES, useViewOptions } from '../../state/view-options';
 
-const backgroundColors: Record<number, string> = {
-    [EXPANDED_SPACE]: 'DarkGray'
-};
-
-const getColorStyle = (value: number) => ({
-    backgroundColor: backgroundColors[value]
-});
+const getColorStyle = (value: number, color?: string) => (color ? { backgroundColor: color } : {});
 
 export type QuiltDisplayProps = {
     quilt?: Quilt | null;
@@ -22,20 +17,24 @@ export type QuiltDisplayProps = {
 
 export type PatchProps = {
     value: number;
+    color?: string;
 };
 
-export const Patch = ({ value }: PatchProps) => {
-    const expandedSpace = value === EXPANDED_SPACE;
-    const emptySpace = value === EMPTY;
+export const Patch = ({ value, color }: PatchProps) => {
+    const viewType = useViewOptions(state => state.viewType);
+    const isBackground = value === BACKGROUND;
+    const isEmpty = value === EMPTY;
+    const isColorView = viewType === VIEW_TYPES.COLOR || isBackground;
 
     return (
-        <div className="patch" style={getColorStyle(value)}>
-            <span className={cx({ empty: expandedSpace })}>{expandedSpace || emptySpace ? '' : value}</span>
+        <div className="patch" style={isColorView ? getColorStyle(value, color) : {}}>
+            <span className={cx({ empty: isBackground })}>{isColorView || isBackground || isEmpty ? '' : value}</span>
         </div>
     );
 };
 
 export const QuiltDisplay = ({ quilt, expanded = true, pattern, rows, cols }: QuiltDisplayProps) => {
+    const colors = useViewOptions(state => state.colors);
     const displayQuilt = useMemo(() => {
         const patternClass = PATTERNS[pattern];
         const baseQuilt = quilt || generateEmptyQuilt(rows * patternClass.patchRows, cols * patternClass.patchCols);
@@ -49,7 +48,7 @@ export const QuiltDisplay = ({ quilt, expanded = true, pattern, rows, cols }: Qu
                 {displayQuilt.map((row, rIdx) => (
                     <div className="quilt-row" key={rIdx}>
                         {row.map((val, cIdx) => (
-                            <Patch key={`${rIdx},${cIdx}`} value={val} />
+                            <Patch color={colors[val]} key={`${rIdx},${cIdx}`} value={val} />
                         ))}
                     </div>
                 ))}

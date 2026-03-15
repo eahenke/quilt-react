@@ -1,4 +1,4 @@
-import { EMPTY, EXPANDED_SPACE } from '../constants';
+import { EMPTY, BACKGROUND } from '../constants';
 import { Coord, Quilt } from '../types';
 import { generateEmptyQuilt, mod, range } from '../util';
 
@@ -44,11 +44,7 @@ export class HarkenPattern {
 
         const rowModifier = this.expandedRows / this.patchRows;
         const colModifier = this.expandedCols / this.patchCols;
-        const expandedQuilt = generateEmptyQuilt(
-            quilt.length * rowModifier,
-            quilt[0].length * colModifier,
-            EXPANDED_SPACE
-        );
+        const expandedQuilt = generateEmptyQuilt(quilt.length * rowModifier, quilt[0].length * colModifier, BACKGROUND);
 
         for (let row = 0; row < quilt.length; row++) {
             for (let col = 0; col < quilt[0].length; col++) {
