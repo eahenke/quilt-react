@@ -10,7 +10,11 @@ describe('generate', () => {
 
 describe('solve', () => {
     it('should solve a partially filled quilt', async () => {
-        const solvedQuilt = await solve({ quilt: QUILT_PARTIAL, patternName: 'harken', fabrics: 10 });
+        const solvedQuilt = await solve({
+            quilt: QUILT_PARTIAL,
+            patternName: 'harken',
+            fabrics: 10,
+        });
 
         expect(solvedQuilt.quilt).toBeDefined();
     });

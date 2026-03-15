@@ -14,7 +14,7 @@ export const Controls = ({ generate, onChange, values, exportCsv }: ControlsProp
     const handleChange = (val: string | null) => {
         const newVals = {
             ...values,
-            patterName: val
+            patterName: val,
         };
         onChange(newVals);
     };
@@ -24,7 +24,7 @@ export const Controls = ({ generate, onChange, values, exportCsv }: ControlsProp
         const key = e.currentTarget.name;
         const newVals = {
             ...values,
-            [key]: val
+            [key]: val,
         };
         onChange(newVals);
     };

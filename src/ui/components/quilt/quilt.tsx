@@ -5,11 +5,11 @@ import { generateEmptyQuilt } from '../../../engine/util';
 import './quilt.css';
 
 const backgroundColors: Record<number, string> = {
-    [EXPANDED_SPACE]: 'DarkGray'
+    [EXPANDED_SPACE]: 'DarkGray',
 };
 
 const getColorStyle = (value: number) => ({
-    backgroundColor: backgroundColors[value]
+    backgroundColor: backgroundColors[value],
 });
 
 export type QuiltDisplayProps = {
@@ -30,15 +30,25 @@ export const Patch = ({ value }: PatchProps) => {
 
     return (
         <div className="patch" style={getColorStyle(value)}>
-            <span className={cx({ empty: expandedSpace })}>{expandedSpace || emptySpace ? '' : value}</span>
+            <span className={cx({ empty: expandedSpace })}>
+                {expandedSpace || emptySpace ? '' : value}
+            </span>
         </div>
     );
 };
 
-export const QuiltDisplay = ({ quilt, expanded = true, pattern, rows, cols }: QuiltDisplayProps) => {
+export const QuiltDisplay = ({
+    quilt,
+    expanded = true,
+    pattern,
+    rows,
+    cols,
+}: QuiltDisplayProps) => {
     const displayQuilt = useMemo(() => {
         const patternClass = PATTERNS[pattern];
-        const baseQuilt = quilt || generateEmptyQuilt(rows * patternClass.patchRows, cols * patternClass.patchCols);
+        const baseQuilt =
+            quilt ||
+            generateEmptyQuilt(rows * patternClass.patchRows, cols * patternClass.patchCols);
 
         return expanded ? patternClass.toDisplay(baseQuilt) : baseQuilt;
     }, [quilt, expanded, pattern, rows, cols]);

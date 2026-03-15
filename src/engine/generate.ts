@@ -53,7 +53,7 @@ function fillQuilt(quilt: Quilt, pattern: HarkenPattern) {
 
     return {
         quilt: filledQuilt || null,
-        counter
+        counter,
     };
 }
 
@@ -80,6 +80,6 @@ export function generate({ patternName, fabrics, rows, cols }: Inputs) {
 
     return {
         quilt: filled.quilt,
-        count: counter
+        count: counter,
     };
 }
