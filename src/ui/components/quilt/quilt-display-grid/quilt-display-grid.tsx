@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import cx from 'classnames';
-import { EMPTY, EXPANDED_SPACE, PATTERNS, Pattern, Quilt } from '../../../../engine';
+import { EMPTY, EXPANDED_SPACE, PATTERNS } from '../../../../engine';
 import { generateEmptyQuilt } from '../../../../engine/util';
 import './quilt-display-grid.css';
+import { QuiltDisplayProps } from '../types';
 
 const backgroundColors: Record<number, string> = {
     [EXPANDED_SPACE]: 'DarkGray',
@@ -12,12 +13,8 @@ const getColorStyle = (value: number) => ({
     backgroundColor: backgroundColors[value],
 });
 
-export type QuiltDisplayGridProps = {
-    quilt?: Quilt | null;
+export type QuiltDisplayGridProps = QuiltDisplayProps & {
     expanded?: boolean;
-    pattern: Pattern;
-    rows: number;
-    cols: number;
 };
 
 export type PatchProps = {
