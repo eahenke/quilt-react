@@ -1,4 +1,4 @@
-import { Quilt } from './types';
+import { Coord, Quilt } from './types';
 import { EMPTY } from './constants';
 
 // utils
@@ -34,3 +34,11 @@ export function generateEmptyQuilt(rows: number, cols: number, fill = EMPTY) {
 
     return quilt;
 }
+
+export const isSameCoord = (a: Coord, b: Coord) => {
+    return a.every((val, idx) => val === b[idx]);
+};
+
+export const isDefined = <T>(val: T | undefined | null): val is T => {
+    return val !== undefined && val !== null;
+};
