@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Grid } from '../ui';
 
-import { QuiltDisplay } from '../quilt/quilt';
+import { QuiltDisplayGrid } from '../quilt';
 import { Controls } from '../controls/controls';
 import { Inputs, Quilt } from '../../../engine';
 import { useGenerateQuilt } from '../../hooks/use-generate-quilt';
@@ -44,7 +44,7 @@ export function Generate() {
                 {loading ? <p>Generating. This may take a few moments...</p> : null}
                 {!loading && error ? <p>{error}</p> : null}
                 {!loading && !error ? (
-                    <QuiltDisplay
+                    <QuiltDisplayGrid
                         cols={inputs.cols}
                         pattern={inputs.patternName}
                         quilt={quilt}
