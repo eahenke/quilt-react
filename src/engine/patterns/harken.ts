@@ -1,6 +1,7 @@
 import { EMPTY, EXPANDED_SPACE } from '../constants';
 import { Coord, Quilt } from '../types';
 import { generateEmptyQuilt, mod, range } from '../util';
+import { BasePattern } from './base-pattern';
 
 const isEven = (n: number) => n % 2 === 0;
 
@@ -8,7 +9,7 @@ type HarkernPatternArgs = {
     fabrics: number;
 };
 
-export class HarkenPattern {
+export class HarkenPattern implements BasePattern {
     fabrics: number;
     patchCols: number;
     patchRows: number;

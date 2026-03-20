@@ -1,6 +1,6 @@
 import { EMPTY, PATTERNS } from './constants';
 import { CouldNotGenerateQuiltError, QuiltTimeoutError } from './errors';
-import { HarkenPattern } from './patterns/harken';
+import { BasePattern } from './patterns/base-pattern';
 import { Coord, Inputs, Quilt, SolveInputs } from './types';
 import { generateEmptyQuilt, shuffle } from './util';
 
@@ -16,7 +16,7 @@ const getNextEmpty = (quilt: Quilt): Coord | null => {
     return null;
 };
 
-function fillQuilt(quilt: Quilt, pattern: HarkenPattern) {
+function fillQuilt(quilt: Quilt, pattern: BasePattern) {
     let counter = 0;
 
     function recur() {

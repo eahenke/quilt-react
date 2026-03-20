@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Grid } from '../ui';
 
-import { QuiltDisplay } from '../quilt/quilt';
 import { Controls } from '../controls/controls';
 import { Inputs, Quilt } from '../../../engine';
 import { useGenerateQuilt } from '../../hooks/use-generate-quilt';
 import { useExportCsv } from '../../hooks/use-export';
+import { QuiltDisplay } from '../quilt/quilt-display/quilt-display';
 
 const DEFAULT_INPUTS: Inputs = {
     patternName: 'harken',
