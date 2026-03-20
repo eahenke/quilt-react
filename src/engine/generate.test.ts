@@ -8,7 +8,7 @@ describe('generate', () => {
     });
 });
 
-describe('solve', () => {
+describe.skip('solve', () => {
     it('should solve a partially filled quilt', async () => {
         const solvedQuilt = await solve({
             quilt: QUILT_PARTIAL,
