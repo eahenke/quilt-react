@@ -4,6 +4,7 @@ import { isDefined, isSameCoord, mod, range } from '../util';
 import { BasePattern } from './base-pattern';
 
 const PATCH_COLUMNS = 6;
+const PATCH_ROWS = 1;
 
 type SameSkyPatternOptions = {
     fabrics: number;
@@ -26,6 +27,8 @@ type SidePosition =
 
 type ArrowPosition = typeof POSITIONS.ARROW_UP | typeof POSITIONS.ARROW_DOWN;
 
+type Position = SidePosition | ArrowPosition;
+
 type Direction =
     | 'NORTH'
     | 'NORTHEAST'
@@ -39,39 +42,42 @@ type Direction =
 type CardinalDirection = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
 
 const PATCH_DIRECTION_MAP: Record<Direction, [number, number]> = {
-    NORTH: [-1, 0],
-    NORTHEAST: [-1, PATCH_COLUMNS],
+    NORTH: [-1 * PATCH_ROWS, 0],
+    NORTHEAST: [-1 * PATCH_ROWS, PATCH_COLUMNS],
     EAST: [0, PATCH_COLUMNS],
-    SOUTHEAST: [1, PATCH_COLUMNS],
-    SOUTH: [1, 0],
-    SOUTHWEST: [1, -1 * PATCH_COLUMNS],
+    SOUTHEAST: [PATCH_ROWS, PATCH_COLUMNS],
+    SOUTH: [PATCH_ROWS, 0],
+    SOUTHWEST: [PATCH_ROWS, -1 * PATCH_COLUMNS],
     WEST: [0, -1 * PATCH_COLUMNS],
-    NORTHWEST: [-1, -1 * PATCH_COLUMNS],
+    NORTHWEST: [-1 * PATCH_ROWS, -1 * PATCH_COLUMNS],
 } as const;
 
-const PATCH_POSITION_ADJACENCY_MAP = {
+const POSITION_OPPOSITE_MAP = {
     [POSITIONS.NORTH]: POSITIONS.SOUTH,
     [POSITIONS.SOUTH]: POSITIONS.NORTH,
     [POSITIONS.EAST]: POSITIONS.WEST,
     [POSITIONS.WEST]: POSITIONS.EAST,
+    [POSITIONS.ARROW_UP]: POSITIONS.ARROW_DOWN,
+    [POSITIONS.ARROW_DOWN]: POSITIONS.ARROW_UP,
 };
 
 export class SameSkyPattern implements BasePattern {
     fabrics: number;
     patchCols: number;
     patchRows: number;
-    // centerCols: Set<number>;
     fabricRange: number[];
 
-    static patchCols = 6;
-    static patchRows = 2;
+    static patchCols = PATCH_COLUMNS;
+    static patchRows = PATCH_ROWS;
+
+    static toDisplay(quilt: Quilt) {
+        return quilt;
+    }
 
     constructor({ fabrics }: SameSkyPatternOptions) {
         this.fabrics = fabrics;
-        this.patchCols = 6;
-        this.patchRows = 1;
-        // TODO: need this?
-        // this.centerCols = new Set([2, 3]);
+        this.patchCols = PATCH_COLUMNS;
+        this.patchRows = PATCH_ROWS;
         this.fabricRange = range(1, fabrics);
     }
 
@@ -116,8 +122,21 @@ export class SameSkyPattern implements BasePattern {
     }
 
     // Gets the relative column in the patch, which corresponds to position
-    getPosition(coord: Coord) {
-        return this.getCoordinateInPatch(coord)[1];
+    getPosition(coord: Coord): Position {
+        return this.getCoordinateInPatch(coord)[1] as Position;
+    }
+
+    getOppositePosition(position: Position) {
+        return POSITION_OPPOSITE_MAP[position];
+    }
+
+    getCardinalDirectionFromPosition(position: number): CardinalDirection | null {
+        if (position === 0) return 'NORTH';
+        if (position === 1) return 'EAST';
+        if (position === 2) return 'SOUTH';
+        if (position === 3) return 'WEST';
+
+        return null;
     }
 
     getQuiltCol(coord: Coord) {
@@ -157,13 +176,24 @@ export class SameSkyPattern implements BasePattern {
         return this.getPatchMemberCoords(adjustedCoord);
     }
 
-    getCardinalDirectionFromPosition(position: number): CardinalDirection | null {
-        if (position === 0) return 'NORTH';
-        if (position === 1) return 'EAST';
-        if (position === 2) return 'SOUTH';
-        if (position === 3) return 'WEST';
+    // Gets the corresponding position in the adjacent patch, but for rotated cardinality
+    // (ie, if position is North/South, check the North of the patches east and west)
+    getCorrespondingPositionInAdjacentPatches(coord: Coord) {
+        // TODO: Maybe more readable using directions and this.getAdjacentPatch
+        const position = this.getPosition(coord);
+        // Look left and right
+        const leftRight: Position[] = [POSITIONS.NORTH, POSITIONS.SOUTH];
+        if (leftRight.includes(position)) {
+            return [-1, 1].map(mult => [coord[0], coord[1] + mult * PATCH_COLUMNS]);
+        }
+        // Look up and down
+        const upDown: Position[] = [POSITIONS.WEST, POSITIONS.EAST];
+        if (upDown.includes(position)) {
+            return [-1, 1].map(mult => [coord[0] + mult * PATCH_ROWS, coord[1]]);
+        }
 
-        return null;
+        // Arrows are not supported in this context
+        return [];
     }
 
     getAdjacentPatchNeighbor(coord: Coord) {
@@ -171,7 +201,7 @@ export class SameSkyPattern implements BasePattern {
         if (!this.isSidePosition(position)) {
             return null;
         }
-        const neighborPosition = PATCH_POSITION_ADJACENCY_MAP[position];
+        const neighborPosition = POSITION_OPPOSITE_MAP[position];
         const neighborDirection = this.getCardinalDirectionFromPosition(position);
         if (!neighborDirection) {
             return null;
@@ -180,6 +210,36 @@ export class SameSkyPattern implements BasePattern {
         const neighborCoords = adjacentPatch[neighborPosition];
 
         return neighborCoords;
+    }
+
+    // Gets the coords of side positions across the diagonal (ie, South and East <-> North and West across the SW diagonal)
+    getDiagonalOppositePosition(coord: Coord) {
+        const position = this.getPosition(coord);
+        const oppositePosition = this.getOppositePosition(position);
+        // For even, NW is paired w/ SE. For odd it's the opposite
+        const even = this.isEvenPatch(coord);
+
+        let direction: Direction;
+        if (even) {
+            const directionalPositions: Position[] = [
+                POSITIONS.NORTH,
+                POSITIONS.WEST,
+                POSITIONS.ARROW_UP,
+            ];
+            direction = directionalPositions.includes(position) ? 'NORTHWEST' : 'SOUTHEAST';
+        } else {
+            const directionalPositions: Position[] = [
+                POSITIONS.NORTH,
+                POSITIONS.EAST,
+                POSITIONS.ARROW_UP,
+            ];
+            direction = directionalPositions.includes(position) ? 'NORTHEAST' : 'SOUTHWEST';
+        }
+
+        const diagonalPatchMembers = this.getAdjacentPatch(coord, direction);
+        const oppositeCoord = diagonalPatchMembers[oppositePosition];
+
+        return oppositeCoord;
     }
 
     /**
@@ -206,6 +266,26 @@ export class SameSkyPattern implements BasePattern {
 
         if (position === POSITIONS.WEST) {
             return even ? patchMembers[POSITIONS.NORTH] : patchMembers[POSITIONS.SOUTH];
+        }
+    }
+
+    // Get the coords of an arrow touching the side position
+    getTouchingArrow(coord: Coord) {
+        const even = this.isEvenPatch(coord);
+        const patchMemberCoords = this.getPatchMemberCoords(coord);
+        const position = this.getPosition(coord);
+        if (this.isArrowPosition(position)) {
+            return coord;
+        }
+
+        if (
+            position === POSITIONS.NORTH ||
+            (even && position === POSITIONS.WEST) ||
+            (!even && position === POSITIONS.EAST)
+        ) {
+            return patchMemberCoords[POSITIONS.ARROW_UP];
+        } else {
+            return patchMemberCoords[POSITIONS.ARROW_DOWN];
         }
     }
 
@@ -256,7 +336,7 @@ export class SameSkyPattern implements BasePattern {
     }
 
     // For even patches, ARROW_UP is paried with North/West. For odd, North/East. ARROW_DOWN is the inverse
-    getSidePositionsAdjacentToArrows(coord: Coord) {
+    getSidePositionsTouchingArrows(coord: Coord) {
         const position = this.getPosition(coord);
         const directionsPairs: Direction[][] = this.isEvenPatch(coord)
             ? [
@@ -303,30 +383,59 @@ export class SameSkyPattern implements BasePattern {
         return this.doNotMatch(quilt, value, [neighbor]);
     }
 
-    // 3. Arrows pointing in same direction towards shared center must not match
-    isDifferentFromAdjacentArrows(quilt: Quilt, coord: Coord, value: number) {
+    // 3. North/South should not match corresponding in left/right.
+    // East/West should not match corresponding in up/down
+    isDifferentFromAdjacentCorresponding(quilt: Quilt, coord: Coord, value: number) {
+        const adjacentCorrespondingCoords = this.getCorrespondingPositionInAdjacentPatches(coord);
+
+        return this.doNotMatch(quilt, value, adjacentCorrespondingCoords);
+    }
+
+    // 4. Side positions should not match their corresponding side positions across the diagonal
+    isDifferentFromDiagonalOppositePositions(quilt: Quilt, coord: Coord, value: number) {
+        const diagonalOppositePosition = this.getDiagonalOppositePosition(coord);
+
+        return this.doNotMatch(quilt, value, [diagonalOppositePosition]);
+    }
+
+    // 5. Arrows pointing in same direction towards shared center must not match
+    isDifferentFromRingArrows(quilt: Quilt, coord: Coord, value: number) {
         const ringArrowCoords = this.getRingArrowCoords(coord);
 
         return this.doNotMatch(quilt, value, ringArrowCoords);
     }
 
-    // 4. Arrows cannot match same arrow direction on diagonal patches
+    // 6. Arrows cannot match same arrow direction on diagonal patches
     isDifferentFromDiagonalArrows(quilt: Quilt, coord: Coord, value: number) {
         const adjacentDiagonalArrows = this.getDiagonalArrowCoords(coord);
 
         return this.doNotMatch(quilt, value, adjacentDiagonalArrows);
     }
 
-    // 5. Arrow cannot match the neighbor of an adjacent side piece from the same pathc
+    // 7. Arrow cannot match the neighbor of an adjacent side piece from the same patch (and vice-versa)
     isDifferentFromAdjacentNeighbor(quilt: Quilt, coord: Coord, value: number) {
-        const adjacentSidePositions = this.getSidePositionsAdjacentToArrows(coord);
-        const neighbors = adjacentSidePositions
-            .map(sideCoord => {
-                return this.getAdjacentPatchNeighbor(sideCoord);
-            })
-            .filter(isDefined);
+        const position = this.getPosition(coord);
 
-        return this.doNotMatch(quilt, value, neighbors);
+        if (this.isArrowPosition(position)) {
+            const adjacentSidePositions = this.getSidePositionsTouchingArrows(coord);
+            const neighbors = adjacentSidePositions
+                .map(sideCoord => {
+                    return this.getAdjacentPatchNeighbor(sideCoord);
+                })
+                .filter(isDefined);
+
+            return this.doNotMatch(quilt, value, neighbors);
+        } else {
+            const partner = this.getPartneredPosition(coord);
+            const neighbors = [coord, partner]
+                .filter(isDefined)
+                .map(c => this.getAdjacentPatchNeighbor(c))
+                .filter(isDefined);
+
+            const arrowsAdjacentToNeighbors = neighbors.map(c => this.getTouchingArrow(c));
+
+            return this.doNotMatch(quilt, value, arrowsAdjacentToNeighbors);
+        }
     }
 
     /* Public */
@@ -349,22 +458,28 @@ export class SameSkyPattern implements BasePattern {
     }
 
     public canAdd(quilt: Quilt, coord: Coord, value: number) {
-        // const strictRules = [this.isDifferentFromInnerPatchRings, this.isDifferentFromDiagonal];
-        const baseRules = [this.isUniqueInPatch];
+        const baseRules = [
+            this.isUniqueInPatch,
+            this.isDifferentFromDiagonalOppositePositions,
+            this.isDifferentFromAdjacentNeighbor,
+        ];
         const position = this.getPosition(coord);
 
         if (this.isArrowPosition(position)) {
             const arrowRules = [
                 ...baseRules,
-                this.isDifferentFromAdjacentArrows,
+                this.isDifferentFromRingArrows,
                 this.isDifferentFromDiagonalArrows,
-                this.isDifferentFromAdjacentNeighbor,
             ];
 
             return arrowRules.every(rule => rule.call(this, quilt, coord, value));
         }
 
-        const sidePositionRules = [...baseRules, this.isDifferentFromNeighbor];
+        const sidePositionRules = [
+            ...baseRules,
+            this.isDifferentFromNeighbor,
+            this.isDifferentFromAdjacentCorresponding,
+        ];
 
         return sidePositionRules.every(rule => rule.call(this, quilt, coord, value));
     }
