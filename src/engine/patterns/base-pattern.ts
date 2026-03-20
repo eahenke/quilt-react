@@ -4,4 +4,8 @@ import { Coord, Quilt } from '../types';
 export abstract class BasePattern {
     public abstract canAdd(quilt: Quilt, coord: Coord, fabric: number): boolean;
     public abstract getValidFabric(quilt: Quilt, coord: Coord): number[];
+
+    static toDisplay(quilt: Quilt) {
+        return quilt;
+    }
 }
