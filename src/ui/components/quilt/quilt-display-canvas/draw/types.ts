@@ -2,6 +2,12 @@ import { Quilt } from '../../../../../engine';
 import { CanvasDrawer } from '../../../canvas/canvas-drawer';
 
 export abstract class PatternDrawer {
-    protected constructor(canvas: CanvasDrawer, colorMap: Record<string, string>) {}
+    canvas: CanvasDrawer;
+    colorMap: Record<string, string>;
+
+    protected constructor(canvas: CanvasDrawer, colorMap: Record<string, string>) {
+        this.canvas = canvas;
+        this.colorMap = colorMap;
+    }
     abstract draw(row: number, col: number, quilt: Quilt): void;
 }
