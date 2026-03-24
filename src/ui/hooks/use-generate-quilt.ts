@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { CouldNotGenerateQuiltError, Pattern, Quilt, QuiltTimeoutError, generate } from '../../engine';
+import {
+    CouldNotGenerateQuiltError,
+    Pattern,
+    Quilt,
+    QuiltTimeoutError,
+    generate,
+} from '../../engine';
 
 const ERRORS = {
     COULD_NOT_GEN: 'Could not generate quilt. You may need more fabrics.',
-    QUILT_TIMEOUT: 'Timeout. Please try again'
+    QUILT_TIMEOUT: 'Timeout. Please try again',
 } as const;
 
 export type GenerateQuiltOptions = {
@@ -30,7 +36,7 @@ export function useGenerateQuilt() {
                         patternName,
                         rows,
                         cols,
-                        fabrics
+                        fabrics,
                     });
                     setLoading(false);
 
@@ -56,6 +62,6 @@ export function useGenerateQuilt() {
     return {
         loading,
         error,
-        generateQuilt
+        generateQuilt,
     };
 }

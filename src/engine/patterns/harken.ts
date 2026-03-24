@@ -1,6 +1,7 @@
 import { EMPTY, BACKGROUND } from '../constants';
 import { Coord, Quilt } from '../types';
 import { generateEmptyQuilt, mod, range } from '../util';
+import { BasePattern } from './base-pattern';
 
 const isEven = (n: number) => n % 2 === 0;
 
@@ -8,7 +9,7 @@ type HarkernPatternArgs = {
     fabrics: number;
 };
 
-export class HarkenPattern {
+export class HarkenPattern implements BasePattern {
     fabrics: number;
     patchCols: number;
     patchRows: number;
@@ -30,7 +31,7 @@ export class HarkenPattern {
                 [2, 2],
                 [2, 3],
                 [1, 4],
-                [0, 5]
+                [0, 5],
             ],
             [
                 [5, 0],
@@ -38,8 +39,8 @@ export class HarkenPattern {
                 [3, 2],
                 [3, 3],
                 [4, 4],
-                [5, 5]
-            ]
+                [5, 5],
+            ],
         ];
 
         const rowModifier = this.expandedRows / this.patchRows;
@@ -133,7 +134,7 @@ export class HarkenPattern {
         const relativeMirrors = [
             [relativeRow, mirrorCol],
             [mirrorRow, relativeCol],
-            [mirrorRow, mirrorCol]
+            [mirrorRow, mirrorCol],
         ];
         const mirrors = relativeMirrors.map(relMirror => this.getFromRelative(coord, relMirror));
 
@@ -158,7 +159,7 @@ export class HarkenPattern {
         return [
             [row, mirrowCol],
             [mirrorRow, col],
-            [mirrorRow, mirrowCol]
+            [mirrorRow, mirrowCol],
         ];
     }
 
@@ -185,7 +186,9 @@ export class HarkenPattern {
     getRelativeInAdjacentPatches(coord: Coord): Coord[] {
         const adjacentPatchCenters = this.getAdjacentPatchCenters(coord);
         const [relativeRow, relativeCol] = this.getCoordinateInPatch(coord);
-        const adjacents = adjacentPatchCenters.map(center => this.getFromRelative(center, [relativeRow, relativeCol]));
+        const adjacents = adjacentPatchCenters.map(center =>
+            this.getFromRelative(center, [relativeRow, relativeCol])
+        );
 
         return adjacents;
     }
@@ -251,7 +254,11 @@ export class HarkenPattern {
         return this.doNotMatch(quilt, value, adjacents);
     }
 
-    isDifferentFromRelativePositionInAdjacentPatches(quilt: Quilt, coord: Coord, value: number): boolean {
+    isDifferentFromRelativePositionInAdjacentPatches(
+        quilt: Quilt,
+        coord: Coord,
+        value: number
+    ): boolean {
         const relativeAdjacents = this.getRelativeInAdjacentPatches(coord);
 
         return this.doNotMatch(quilt, value, relativeAdjacents);
@@ -288,13 +295,17 @@ export class HarkenPattern {
                 this.isDifferentFromAdjacent,
                 this.isDifferentFromCenter,
                 this.isDifferentFromRings,
-                ...strictRules
+                ...strictRules,
             ];
 
             return nonCenterRules.every(rule => rule.call(this, quilt, coord, value));
         }
 
-        const centerRules = [...baseRules, this.isDifferentFromOuter, this.isDifferentFromDiagonalCenter];
+        const centerRules = [
+            ...baseRules,
+            this.isDifferentFromOuter,
+            this.isDifferentFromDiagonalCenter,
+        ];
 
         return centerRules.every(rule => rule.call(this, quilt, coord, value));
     }

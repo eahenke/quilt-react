@@ -1,4 +1,4 @@
-import { Inputs, PATTERNS } from '../../../engine';
+import { Inputs, Pattern, PATTERNS } from '../../../engine';
 import { Select, TextInput, Flex, Button } from '../ui';
 
 const patternOptions = Object.keys(PATTERNS);
@@ -14,7 +14,7 @@ export const Controls = ({ generate, onChange, values, exportCsv }: ControlsProp
     const handleChange = (val: string | null) => {
         const newVals = {
             ...values,
-            patterName: val
+            patternName: (val || 'harken') as Pattern,
         };
         onChange(newVals);
     };
@@ -24,7 +24,7 @@ export const Controls = ({ generate, onChange, values, exportCsv }: ControlsProp
         const key = e.currentTarget.name;
         const newVals = {
             ...values,
-            [key]: val
+            [key]: val,
         };
         onChange(newVals);
     };
@@ -35,7 +35,7 @@ export const Controls = ({ generate, onChange, values, exportCsv }: ControlsProp
                 <Select
                     data={patternOptions}
                     label="Pattern"
-                    name="patterName"
+                    name="patternName"
                     onChange={handleChange}
                     value={values.patternName}
                 />

@@ -14,6 +14,6 @@ export function useExportCsv() {
     };
 
     return {
-        exportCsv
+        exportCsv,
     };
 }

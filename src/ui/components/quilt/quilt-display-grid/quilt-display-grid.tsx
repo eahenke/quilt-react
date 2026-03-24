@@ -1,18 +1,16 @@
 import { useMemo } from 'react';
 import cx from 'classnames';
-import { EMPTY, BACKGROUND, PATTERNS, Pattern, Quilt } from '../../../engine';
-import { generateEmptyQuilt } from '../../../engine/util';
-import './quilt.css';
-import { VIEW_TYPES, useViewOptions } from '../../state/view-options';
+import { EMPTY, PATTERNS, BACKGROUND } from '../../../../engine';
+import { generateEmptyQuilt } from '../../../../engine/util';
+import { VIEW_TYPES, useViewOptions } from '../../../state/view-options';
+
+import './quilt-display-grid.css';
+import { QuiltDisplayProps } from '../types';
 
 const getColorStyle = (value: number, color?: string) => (color ? { backgroundColor: color } : {});
 
-export type QuiltDisplayProps = {
-    quilt?: Quilt | null;
+export type QuiltDisplayGridProps = QuiltDisplayProps & {
     expanded?: boolean;
-    pattern: Pattern;
-    rows: number;
-    cols: number;
 };
 
 export type PatchProps = {
@@ -28,16 +26,26 @@ export const Patch = ({ value, color }: PatchProps) => {
 
     return (
         <div className="patch" style={isColorView ? getColorStyle(value, color) : {}}>
-            <span className={cx({ empty: isBackground })}>{isColorView || isBackground || isEmpty ? '' : value}</span>
+            <span className={cx({ empty: isBackground })}>
+                {isColorView || isBackground || isEmpty ? '' : value}
+            </span>
         </div>
     );
 };
 
-export const QuiltDisplay = ({ quilt, expanded = true, pattern, rows, cols }: QuiltDisplayProps) => {
+export const QuiltDisplayGrid = ({
+    quilt,
+    expanded = true,
+    pattern,
+    rows,
+    cols,
+}: QuiltDisplayGridProps) => {
     const colors = useViewOptions(state => state.colors);
     const displayQuilt = useMemo(() => {
         const patternClass = PATTERNS[pattern];
-        const baseQuilt = quilt || generateEmptyQuilt(rows * patternClass.patchRows, cols * patternClass.patchCols);
+        const baseQuilt =
+            quilt ||
+            generateEmptyQuilt(rows * patternClass.patchRows, cols * patternClass.patchCols);
 
         return expanded ? patternClass.toDisplay(baseQuilt) : baseQuilt;
     }, [quilt, expanded, pattern, rows, cols]);
