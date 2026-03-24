@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import { Colors, ValueOf } from '../types';
 import { BACKGROUND, EMPTY } from '../../engine';
 
 export const VIEW_TYPES = {
     COLOR: 'COLOR',
-    NUMBER: 'NUMBER'
+    NUMBER: 'NUMBER',
 } as const;
 
 export type ViewType = ValueOf<typeof VIEW_TYPES>;
@@ -32,7 +32,7 @@ const DEFAULT_COLORS = {
     '7': '#274472',
     '8': '#C3E0E5',
     '9': '#BFD7ED',
-    '10': '#60A3D9'
+    '10': '#60A3D9',
 };
 
 export const useViewOptions = create<ViewOptionsState>()(
@@ -45,15 +45,16 @@ export const useViewOptions = create<ViewOptionsState>()(
                     set({
                         colors: {
                             ...get().colors,
-                            [key]: color
-                        }
+                            [key]: color,
+                        },
                     }),
-                setViewType: (viewType: ViewType) => set({ viewType })
-            }
+                setViewType: (viewType: ViewType) => set({ viewType }),
+            },
         }),
         {
             name: 'view-options',
-            partialize: state => Object.fromEntries(Object.entries(state).filter(([key]) => key !== 'actions'))
+            partialize: state =>
+                Object.fromEntries(Object.entries(state).filter(([key]) => key !== 'actions')),
         }
     )
 );

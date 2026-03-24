@@ -2,7 +2,7 @@ import { Quilt } from '../../../../../engine';
 import { SameSkyPattern } from '../../../../../engine/patterns/same-sky';
 import { flipDiagonal, flipHorizontal, invert, shiftY } from '../../../../../engine/utils/matrix';
 import { CanvasDrawer } from '../../../canvas/canvas-drawer';
-import { PatternDrawer } from './types';
+import { DrawOptions, PatternDrawer } from './types';
 
 export class SameSkyDrawer implements PatternDrawer {
     canvas: CanvasDrawer;
@@ -16,7 +16,7 @@ export class SameSkyDrawer implements PatternDrawer {
         this.colorMap = colorMap;
     }
 
-    private drawPatch = (row: number, col: number, quilt: Quilt) => {
+    private drawPatch = (row: number, col: number, quilt: Quilt, options: DrawOptions) => {
         const even = (row + col) % 2 === 0;
 
         const baseNorthCoords = [
@@ -57,19 +57,22 @@ export class SameSkyDrawer implements PatternDrawer {
         polys.forEach((poly, idx) => {
             const val = quilt[row][SameSkyPattern.patchCols * col + idx];
 
-            const fill = this.colorMap[val];
+            const fill = options.viewType === 'COLOR' ? this.colorMap[val] : '#000';
             const absoluteCoords = this.canvas.toAbsolutePosition(poly, row, col, this.patchUnits);
 
             this.canvas.drawPolygon(absoluteCoords, fill);
             // TODO: consider adding to drawPolygon w/ an option for less passes
-            this.canvas.labelPolygon(absoluteCoords, val.toString());
+
+            if (options.viewType === 'NUMBER') {
+                this.canvas.labelPolygon(absoluteCoords, val.toString());
+            }
         });
     };
 
-    public draw = (rows: number, cols: number, quilt: Quilt) => {
+    public draw = (rows: number, cols: number, quilt: Quilt, options: DrawOptions) => {
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
-                this.drawPatch(i, j, quilt);
+                this.drawPatch(i, j, quilt, options);
             }
         }
     };

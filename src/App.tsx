@@ -6,7 +6,7 @@ import { Generate } from './ui/components/generate/generate';
 
 function App() {
     return (
-        <MantineProvider>
+        <MantineProvider defaultColorScheme="dark">
             <Generate />
         </MantineProvider>
     );

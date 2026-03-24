@@ -7,7 +7,7 @@ import { VIEW_TYPES, useViewOptions } from '../../../state/view-options';
 import './quilt-display-grid.css';
 import { QuiltDisplayProps } from '../types';
 
-const getColorStyle = (value: number, color?: string) => (color ? { backgroundColor: color } : {});
+const getColorStyle = (color?: string) => (color ? { backgroundColor: color } : {});
 
 export type QuiltDisplayGridProps = QuiltDisplayProps & {
     expanded?: boolean;
@@ -25,7 +25,7 @@ export const Patch = ({ value, color }: PatchProps) => {
     const isColorView = viewType === VIEW_TYPES.COLOR || isBackground;
 
     return (
-        <div className="patch" style={isColorView ? getColorStyle(value, color) : {}}>
+        <div className="patch" style={isColorView ? getColorStyle(color) : {}}>
             <span className={cx({ empty: isBackground })}>
                 {isColorView || isBackground || isEmpty ? '' : value}
             </span>

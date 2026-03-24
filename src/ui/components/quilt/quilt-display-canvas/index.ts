@@ -1,1 +1,1 @@
-export { QuiltDisplayCanvas } from './quilt-display-same-sky';
+export { QuiltDisplayCanvas } from './quilt-display-canvas';

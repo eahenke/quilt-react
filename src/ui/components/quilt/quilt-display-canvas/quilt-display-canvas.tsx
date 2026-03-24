@@ -2,26 +2,15 @@ import { useEffect, useRef } from 'react';
 import { QuiltDisplayProps } from '../types';
 import { CanvasDrawer } from '../../canvas/canvas-drawer';
 import { createPatternDrawer } from './draw';
+import { useViewOptions } from '../../../state/view-options';
 
 const QUILT_CANVAS_ID = 'quilt-display-canvas';
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 600;
 
-// TODO: Temporary until color controls are added
-const TEMP_COLOR_MAP: Record<number, string> = {
-    1: 'blue',
-    2: 'red',
-    3: 'green',
-    4: 'purple',
-    5: 'cyan',
-    6: 'brown',
-    7: 'violet',
-    8: 'teal',
-    9: 'lightgreen',
-    10: 'yellow',
-};
-
 export const QuiltDisplayCanvas = ({ rows, cols, pattern, quilt }: QuiltDisplayProps) => {
+    const colorMap = useViewOptions(state => state.colors);
+    const viewType = useViewOptions(state => state.viewType);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
@@ -42,14 +31,14 @@ export const QuiltDisplayCanvas = ({ rows, cols, pattern, quilt }: QuiltDisplayP
             ctx,
         });
 
-        const patternDrawer = createPatternDrawer(pattern, drawer, TEMP_COLOR_MAP);
+        const patternDrawer = createPatternDrawer(pattern, drawer, colorMap);
 
-        patternDrawer.draw(rows, cols, quilt);
+        patternDrawer.draw(rows, cols, quilt, { viewType });
 
         return () => {
             drawer.clear();
         };
-    }, [quilt]);
+    }, [quilt, viewType, colorMap]);
 
     if (!quilt) {
         // TODO: Improve empty state
