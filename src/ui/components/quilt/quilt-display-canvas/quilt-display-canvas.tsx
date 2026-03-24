@@ -3,6 +3,7 @@ import { QuiltDisplayProps } from '../types';
 import { CanvasDrawer } from '../../canvas/canvas-drawer';
 import { createPatternDrawer } from './draw';
 import { useViewOptions } from '../../../state/view-options';
+import { BACKGROUND } from '../../../../engine';
 
 const QUILT_CANVAS_ID = 'quilt-display-canvas';
 const CANVAS_WIDTH = 600;
@@ -10,7 +11,7 @@ const CANVAS_HEIGHT = 600;
 
 export const QuiltDisplayCanvas = ({ rows, cols, pattern, quilt }: QuiltDisplayProps) => {
     const colorMap = useViewOptions(state => state.colors);
-    const viewType = useViewOptions(state => state.viewType);
+    const view = useViewOptions(state => state.view);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
@@ -33,17 +34,15 @@ export const QuiltDisplayCanvas = ({ rows, cols, pattern, quilt }: QuiltDisplayP
 
         const patternDrawer = createPatternDrawer(pattern, drawer, colorMap);
 
-        patternDrawer.draw(rows, cols, quilt, { viewType });
+        patternDrawer.draw(rows, cols, quilt, {
+            showColors: view.colors,
+            showLabels: view.numbers,
+        });
 
         return () => {
             drawer.clear();
         };
-    }, [quilt, viewType, colorMap]);
-
-    if (!quilt) {
-        // TODO: Improve empty state
-        return <div>Generate quilt</div>;
-    }
+    }, [quilt, view.colors, view.numbers, colorMap]);
 
     return (
         <canvas
@@ -51,7 +50,7 @@ export const QuiltDisplayCanvas = ({ rows, cols, pattern, quilt }: QuiltDisplayP
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            style={{ backgroundColor: '#fff' }}
+            style={{ backgroundColor: colorMap[BACKGROUND] || '#fff' }}
         />
     );
 };

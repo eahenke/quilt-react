@@ -79,7 +79,7 @@ export class CanvasDrawer {
 
         const [avgX, avgY] = summedCoords.map(v => v / coords.length);
         this.ctx.font = 'Arial';
-        this.ctx.fillStyle = ' #fff';
+        this.ctx.fillStyle = '#fff';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText(label, avgX, avgY);

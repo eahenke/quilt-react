@@ -7,6 +7,7 @@ import { useGenerateQuilt } from '../../hooks/use-generate-quilt';
 import { useExportCsv } from '../../hooks/use-export';
 import { ColorControls } from '../color-controls';
 import { QuiltDisplay } from '../quilt/quilt-display/quilt-display';
+import { ViewControls } from '../view-controls';
 
 const DEFAULT_INPUTS: Inputs = {
     patternName: 'harken',
@@ -31,17 +32,26 @@ export function Generate() {
         exportCsv(quilt);
     };
 
+    const handleInputsChange = (vals: Inputs) => {
+        if (inputs.patternName !== vals.patternName) {
+            console.log('## PATTERN NAME CHANGED');
+            setQuilt(null);
+        }
+        setInputs(vals);
+    };
+
     return (
         <Grid gutter={'sm'}>
             <Grid.Col span={2}>
                 <Controls
                     exportCsv={handleExport}
                     generate={handleGenerate}
-                    onChange={setInputs}
+                    onChange={handleInputsChange}
                     values={inputs}
                 />
             </Grid.Col>
             <Grid.Col span={8}>
+                <ViewControls />
                 {loading ? <p>Generating. This may take a few moments...</p> : null}
                 {!loading && error ? <p>{error}</p> : null}
                 {!loading && !error ? (

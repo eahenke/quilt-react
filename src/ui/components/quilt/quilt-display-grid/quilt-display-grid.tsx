@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import cx from 'classnames';
 import { EMPTY, PATTERNS, BACKGROUND } from '../../../../engine';
 import { generateEmptyQuilt } from '../../../../engine/util';
-import { VIEW_TYPES, useViewOptions } from '../../../state/view-options';
+import { useViewOptions } from '../../../state/view-options';
 
 import './quilt-display-grid.css';
 import { QuiltDisplayProps } from '../types';
@@ -19,15 +19,16 @@ export type PatchProps = {
 };
 
 export const Patch = ({ value, color }: PatchProps) => {
-    const viewType = useViewOptions(state => state.viewType);
+    const view = useViewOptions(state => state.view);
     const isBackground = value === BACKGROUND;
     const isEmpty = value === EMPTY;
-    const isColorView = viewType === VIEW_TYPES.COLOR || isBackground;
+    const isColorView = !!view.colors || isBackground;
+    const isNumbersView = !!view.numbers;
 
     return (
         <div className="patch" style={isColorView ? getColorStyle(color) : {}}>
             <span className={cx({ empty: isBackground })}>
-                {isColorView || isBackground || isEmpty ? '' : value}
+                {isBackground || isEmpty || !isNumbersView ? '' : value}
             </span>
         </div>
     );

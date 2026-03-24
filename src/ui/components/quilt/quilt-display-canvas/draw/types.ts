@@ -2,7 +2,8 @@ import { Quilt } from '../../../../../engine';
 import { CanvasDrawer } from '../../../canvas/canvas-drawer';
 
 export type DrawOptions = {
-    viewType: 'COLOR' | 'NUMBER';
+    showColors: boolean;
+    showLabels: boolean;
 };
 
 export abstract class PatternDrawer {

@@ -4,18 +4,24 @@ import { Colors, ValueOf } from '../types';
 import { BACKGROUND, EMPTY } from '../../engine';
 
 export const VIEW_TYPES = {
-    COLOR: 'COLOR',
-    NUMBER: 'NUMBER',
+    COLORS: 'colors',
+    NUMBERS: 'numbers',
 } as const;
+
+type ViewOptions = {
+    colors: boolean;
+    numbers: boolean;
+};
+type ViewOption = keyof ViewOptions;
 
 export type ViewType = ValueOf<typeof VIEW_TYPES>;
 
 type ViewOptionsState = {
     colors: Colors;
-    viewType: 'COLOR' | 'NUMBER';
+    view: ViewOptions;
     actions: {
         setColor: (key: string, color: string) => void;
-        setViewType: (viewType: ViewType) => void;
+        setViewOption: (key: ViewOption, val: boolean) => void;
     };
 };
 
@@ -39,7 +45,10 @@ export const useViewOptions = create<ViewOptionsState>()(
     persist(
         (set, get) => ({
             colors: DEFAULT_COLORS,
-            viewType: 'COLOR',
+            view: {
+                colors: true,
+                numbers: false,
+            },
             actions: {
                 setColor: (key: string, color: string) =>
                     set({
@@ -48,7 +57,14 @@ export const useViewOptions = create<ViewOptionsState>()(
                             [key]: color,
                         },
                     }),
-                setViewType: (viewType: ViewType) => set({ viewType }),
+                setViewOption: (key: 'colors' | 'numbers', val: boolean) =>
+                    set(state => ({
+                        ...state,
+                        view: {
+                            ...state.view,
+                            [key]: val,
+                        },
+                    })),
             },
         }),
         {

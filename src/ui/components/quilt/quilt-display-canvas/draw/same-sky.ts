@@ -57,13 +57,13 @@ export class SameSkyDrawer implements PatternDrawer {
         polys.forEach((poly, idx) => {
             const val = quilt[row][SameSkyPattern.patchCols * col + idx];
 
-            const fill = options.viewType === 'COLOR' ? this.colorMap[val] : '#000';
+            const fill = options.showColors ? this.colorMap[val] : '#000';
             const absoluteCoords = this.canvas.toAbsolutePosition(poly, row, col, this.patchUnits);
 
             this.canvas.drawPolygon(absoluteCoords, fill);
             // TODO: consider adding to drawPolygon w/ an option for less passes
 
-            if (options.viewType === 'NUMBER') {
+            if (options.showLabels) {
                 this.canvas.labelPolygon(absoluteCoords, val.toString());
             }
         });
